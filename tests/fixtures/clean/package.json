@@ -1,0 +1,8 @@
+{
+  "name": "synthetic-clean-fixture",
+  "version": "1.0.0",
+  "description": "Synthetic fixture — triggers no rules. NOT a real package.",
+  "scripts": {
+    "test": "echo ok"
+  }
+}
