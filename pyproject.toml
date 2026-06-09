@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "npm-malware-research"
+version = "0.1.0"
+description = "Forensic research tool for analysing malicious npm packages via YARA rules"
+requires-python = ">=3.13"
+dependencies = [
+    "yara-python>=4.5",
+    "typer>=0.12",
+    "rich>=13",
+]
+
+[project.scripts]
+scanner = "scanner.__main__:app"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/scanner"]
