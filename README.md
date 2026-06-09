@@ -6,6 +6,52 @@ Based on: **[Wait, binding.gyp Can Do What? Exploring npm's Weirdest Build Syste
 
 ---
 
+## Attack surface map
+
+```mermaid
+flowchart TD
+    INSTALL(["npm install"])
+
+    INSTALL --> GYP["binding.gyp\nnode-gyp build"]
+    INSTALL --> PKG["package.json\nlifecycle hooks"]
+
+    GYP --> EXP["GYP Command Expansion\n&lt;!(…)  &lt;!@(…)  ^!(…)"]
+
+    EXP --> CE["BindingGyp_CmdExpansion\ncatch-all — any expansion syntax"]
+
+    EXP --> EXECGRP["Code execution"]
+    EXECGRP --> NE["BindingGyp_NodeExec\nnode"]
+    EXECGRP --> PE["BindingGyp_PythonExec\npython · python3"]
+    EXECGRP --> SE["BindingGyp_ShellExec\nsh · bash · powershell"]
+
+    GYP --> PYMOD["BindingGyp_PymodExpansion\n&lt;!pymod_do_main"]
+
+    EXP --> NF["BindingGyp_NetworkFetch\ncurl · wget inside expansion"]
+    EXP --> FW["BindingGyp_FileWriteExpansion\n&lt;| file-write syntax"]
+
+    EXP --> EVAGRP["Evasion"]
+    EVAGRP --> SS["BindingGyp_StdoutSuppress\n&gt;/dev/null · 2&gt;&1"]
+    EVAGRP --> TN["BindingGyp_TypeNoneCombo\ntype:none + expansion"]
+
+    PKG --> LS["PkgJson_LifecycleScript\npreinstall · postinstall · prepare"]
+    PKG --> OB["PkgJson_ObfuscatedScript\nbase64 · eval · fromCharCode"]
+    PKG --> NIS["PkgJson_NetworkInScript\ncurl · wget in script value"]
+
+    classDef critical fill:#7f1d1d,color:#fecaca,stroke:#991b1b
+    classDef high    fill:#78350f,color:#fde68a,stroke:#92400e
+    classDef low     fill:#1e3a5f,color:#bfdbfe,stroke:#1d4ed8
+    classDef group   fill:#1f2937,color:#e5e7eb,stroke:#374151
+    classDef entry   fill:#14532d,color:#bbf7d0,stroke:#166534
+
+    class INSTALL entry
+    class GYP,PKG,EXP,EXECGRP,EVAGRP group
+    class CE,NE,PE,SE,PYMOD,NF,FW,SS,TN,OB critical
+    class NIS high
+    class LS low
+```
+
+---
+
 ## Background
 
 `binding.gyp` is GYP (Generate Your Projects) configuration used by npm to build native Node.js addons. It supports a command-expansion syntax — `<!(...)`, `<!@(...)`, `^!(...)` — that executes arbitrary shell commands at native-module build time, *before* any `package.json` lifecycle hook fires and outside the usual npm hook visibility.
