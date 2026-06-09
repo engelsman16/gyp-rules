@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "npm-malware-research"
+version = "0.1.0"
+description = "Forensic research tool for analysing malicious npm packages via YARA rules"
+packages = [{include = "scanner", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.13"
+yara-python = ">=4.5"
+typer = ">=0.12"
+rich = ">=13"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8"
+
+[tool.poetry.scripts]
+scanner = "scanner.__main__:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
